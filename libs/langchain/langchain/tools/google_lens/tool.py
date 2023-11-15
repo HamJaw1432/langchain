@@ -17,9 +17,7 @@ class GoogleLensQueryRun(BaseTool):
         "to an image from Google Lens"
         "Input should be a url to an image."
     )
-    api_wrapper: GoogleLensAPIWrapper = Field(
-        default_factory=GoogleLensAPIWrapper
-    )
+    api_wrapper: GoogleLensAPIWrapper = Field(default_factory=GoogleLensAPIWrapper)
 
     def _run(
         self,

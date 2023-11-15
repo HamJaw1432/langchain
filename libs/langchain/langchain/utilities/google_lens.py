@@ -2,7 +2,7 @@
 from typing import Any, Dict, Optional, cast
 
 from langchain.pydantic_v1 import BaseModel, Extra, SecretStr, root_validator
-from langchain.utils import get_from_dict_or_env, convert_to_secret_str
+from langchain.utils import convert_to_secret_str, get_from_dict_or_env
 
 
 class GoogleLensAPIWrapper(BaseModel):
@@ -24,6 +24,7 @@ class GoogleLensAPIWrapper(BaseModel):
         google_lens = GoogleLensAPIWrapper()
         google_lens.run('langchain')
     """
+
     serp_search_engine: Any
     serp_api_key: Optional[SecretStr] = None
 
@@ -53,7 +54,7 @@ class GoogleLensAPIWrapper(BaseModel):
     def run(self, query: str) -> str:
         """Run query through Google Trends with Serpapi"""
         serpapi_api_key = cast(SecretStr, self.serp_api_key)
-        
+
         params = {
             "engine": "google_lens",
             "api_key": serpapi_api_key.get_secret_value(),
@@ -61,25 +62,25 @@ class GoogleLensAPIWrapper(BaseModel):
         }
         queryURL = f"https://serpapi.com/search?engine={params["engine"]}&api_key={params["api_key"]}&url={params["url"]}"
         response = self.requests.get(queryURL)
-        
+
         if response.status_code != 200:
-          return "Google Lens search failed"
-        
+            return "Google Lens search failed"
+
         responseValue = response.json()
 
         if responseValue["search_metadata"]["status"] != "Success":
-          return "Google Lens search failed"
+            return "Google Lens search failed"
 
         xs = ""
         if len(responseValue["knowledge_graph"]) > 0:
-          subject = responseValue["knowledge_graph"][0]
-          xs += f"Subject:{subject["title"]}({subject["subtitle"]})\n"
-          xs += f"Link to subject:{subject["link"]}\n\n"
+            subject = responseValue["knowledge_graph"][0]
+            xs += f"Subject:{subject["title"]}({subject["subtitle"]})\n"
+            xs += f"Link to subject:{subject["link"]}\n\n"
         xs += f"Related Images:\n\n"
         for image in responseValue["visual_matches"]:
-          xs += f"Title: {image["title"]}\n"
-          xs += f"Source({image["source"]}): {image["link"]}\n"
-          xs += f"Image: {image["thumbnail"]}\n\n"
+            xs += f"Title: {image["title"]}\n"
+            xs += f"Source({image["source"]}): {image["link"]}\n"
+            xs += f"Image: {image["thumbnail"]}\n\n"
         xs += f"Reverse Image Search Link: {responseValue["reverse_image_search"]["link"]}\n"
         print(xs)
 
