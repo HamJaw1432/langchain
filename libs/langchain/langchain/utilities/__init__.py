@@ -79,11 +79,20 @@ def _import_google_places_api() -> Any:
 
     return GooglePlacesAPIWrapper
 
+def _import_google_jobs() -> Any:
+    from langchain.utilities.google_jobs import GoogleJobsAPIWrapper
+
+    return GoogleJobsAPIWrapper
 
 def _import_google_scholar() -> Any:
     from langchain.utilities.google_scholar import GoogleScholarAPIWrapper
 
     return GoogleScholarAPIWrapper
+
+def _import_google_trends() -> Any:
+    from langchain.utilities.google_trends import GoogleTrendsAPIWrapper
+
+    return GoogleTrendsAPIWrapper
 
 
 def _import_google_search() -> Any:
@@ -241,8 +250,12 @@ def __getattr__(name: str) -> Any:
         return _import_google_lens()
     elif name == "GoldenQueryAPIWrapper":
         return _import_golden_query()
+    elif name == "GoogleJobsAPIWrapper":
+        return _import_google_jobs()
     elif name == "GoogleScholarAPIWrapper":
         return _import_google_scholar()
+    elif name == "GoogleTrendsAPIWrapper":
+        return _import_google_trends()
     elif name == "GooglePlacesAPIWrapper":
         return _import_google_places_api()
     elif name == "GoogleSearchAPIWrapper":
@@ -304,8 +317,10 @@ __all__ = [
     "DuckDuckGoSearchAPIWrapper",
     "GoldenQueryAPIWrapper",
     "GoogleLensAPIWrapper",
+    "GoogleJobsAPIWrapper",
     "GooglePlacesAPIWrapper",
     "GoogleScholarAPIWrapper",
+    "GoogleTrendsAPIWrapper",
     "GoogleSearchAPIWrapper",
     "GoogleSerperAPIWrapper",
     "GraphQLAPIWrapper",
