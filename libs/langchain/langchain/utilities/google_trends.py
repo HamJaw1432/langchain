@@ -71,11 +71,13 @@ class GoogleTrendsAPIWrapper(BaseModel):
 
         start_date = total_results[0]['date'].split()
         end_date = total_results[-1]['date'].split()
-        values = [results.get('values')[0].get('extracted_value') for results in total_results]
+        values = [results.get('values')[0].get('extracted_value') 
+                    for results in total_results]
         min_value = min(values)
         max_value = max(values)
         avg_value = sum(values) / len(values)
-        percentage_change = (values[-1] - values[0]) / (values[0] if values[0] != 0 else 1 ) * (100 if values[0] != 0 else 1 )
+        percentage_change = (values[-1] - values[0]) / ((values[0] if values[0]
+                != 0 else 1)) * ((100 if values[0] != 0 else 1))
 
         params = {
             "engine": "google_trends",
