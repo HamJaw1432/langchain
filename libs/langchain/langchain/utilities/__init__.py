@@ -82,7 +82,8 @@ def _import_google_scholar() -> Any:
 def _import_google_trends() -> Any:
     from langchain.utilities.google_trends import GoogleTrendsAPIWrapper
 
-    return GoogleScholarAPIWrapper
+    return GoogleTrendsAPIWrapper
+
 
 def _import_google_search() -> Any:
     from langchain.utilities.google_search import GoogleSearchAPIWrapper
