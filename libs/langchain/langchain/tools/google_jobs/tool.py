@@ -1,4 +1,4 @@
-"""Tool for the Google Trends"""
+"""Tool for the Google Jobs"""
 
 from typing import Optional
 
@@ -17,9 +17,7 @@ class GoogleJobsQueryRun(BaseTool):
         "google search Jobs from Google Jobs"
         "Input should be a search query."
     )
-    api_wrapper: GoogleJobsAPIWrapper = Field(
-        default_factory=GoogleJobsAPIWrapper
-    )
+    api_wrapper: GoogleJobsAPIWrapper = Field(default_factory=GoogleJobsAPIWrapper)
 
     def _run(
         self,

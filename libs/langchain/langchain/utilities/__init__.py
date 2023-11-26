@@ -73,10 +73,12 @@ def _import_google_places_api() -> Any:
 
     return GooglePlacesAPIWrapper
 
+
 def _import_google_jobs() -> Any:
     from langchain.utilities.google_jobs import GoogleJobsAPIWrapper
 
     return GoogleJobsAPIWrapper
+
 
 def _import_google_scholar() -> Any:
     from langchain.utilities.google_scholar import GoogleScholarAPIWrapper
