@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Optional, Callable, Tuple
 from mypy_extensions import Arg, KwArg
 
 from langchain.agents.tools import Tool
-from langchain.schema.language_model import BaseLanguageModel
+from langchain_core.language_models import BaseLanguageModel
 from langchain.callbacks.base import BaseCallbackManager
 from langchain.callbacks.manager import Callbacks
 from langchain.chains.api import news_docs, open_meteo_docs, podcast_docs, tmdb_docs
@@ -34,10 +34,13 @@ from langchain.tools.base import BaseTool
 from langchain.tools.bing_search.tool import BingSearchRun
 from langchain.tools.ddg_search.tool import DuckDuckGoSearchRun
 from langchain.tools.google_cloud.texttospeech import GoogleCloudTextToSpeechTool
+from langchain.tools.google_lens.tool import GoogleLensQueryRun
 from langchain.tools.google_search.tool import GoogleSearchResults, GoogleSearchRun
 from langchain.tools.google_scholar.tool import GoogleScholarQueryRun
 from langchain.tools.google_finance.tool import GoogleFinanceQueryRun
+from langchain.tools.google_trends.tool import GoogleTrendsQueryRun
 from langchain.tools.metaphor_search.tool import MetaphorSearchResults
+from langchain.tools.google_jobs.tool import GoogleJobsQueryRun
 from langchain.tools.google_serper.tool import GoogleSerperResults, GoogleSerperRun
 from langchain.tools.searchapi.tool import SearchAPIResults, SearchAPIRun
 from langchain.tools.graphql.tool import BaseGraphQLTool
@@ -65,10 +68,13 @@ from langchain.utilities.golden_query import GoldenQueryAPIWrapper
 from langchain.utilities.pubmed import PubMedAPIWrapper
 from langchain.utilities.bing_search import BingSearchAPIWrapper
 from langchain.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
+from langchain.utilities.google_lens import GoogleLensAPIWrapper
+from langchain.utilities.google_jobs import GoogleJobsAPIWrapper
 from langchain.utilities.google_search import GoogleSearchAPIWrapper
 from langchain.utilities.google_serper import GoogleSerperAPIWrapper
 from langchain.utilities.google_scholar import GoogleScholarAPIWrapper
 from langchain.utilities.google_finance import GoogleFinanceAPIWrapper
+from langchain.utilities.google_trends import GoogleTrendsAPIWrapper
 from langchain.utilities.metaphor_search import MetaphorSearchAPIWrapper
 from langchain.utilities.awslambda import LambdaWrapper
 from langchain.utilities.graphql import GraphQLAPIWrapper
@@ -144,7 +150,11 @@ def _get_llm_math(llm: BaseLanguageModel) -> BaseTool:
 
 
 def _get_open_meteo_api(llm: BaseLanguageModel) -> BaseTool:
-    chain = APIChain.from_llm_and_api_docs(llm, open_meteo_docs.OPEN_METEO_DOCS)
+    chain = APIChain.from_llm_and_api_docs(
+        llm,
+        open_meteo_docs.OPEN_METEO_DOCS,
+        limit_to_domains=["https://api.open-meteo.com/"],
+    )
     return Tool(
         name="Open-Meteo-API",
         description="Useful for when you want to get weather information from the OpenMeteo API. The input should be a question in natural language that this API can answer.",
@@ -161,7 +171,10 @@ _LLM_TOOLS: Dict[str, Callable[[BaseLanguageModel], BaseTool]] = {
 def _get_news_api(llm: BaseLanguageModel, **kwargs: Any) -> BaseTool:
     news_api_key = kwargs["news_api_key"]
     chain = APIChain.from_llm_and_api_docs(
-        llm, news_docs.NEWS_DOCS, headers={"X-Api-Key": news_api_key}
+        llm,
+        news_docs.NEWS_DOCS,
+        headers={"X-Api-Key": news_api_key},
+        limit_to_domains=["https://newsapi.org/"],
     )
     return Tool(
         name="News-API",
@@ -176,6 +189,7 @@ def _get_tmdb_api(llm: BaseLanguageModel, **kwargs: Any) -> BaseTool:
         llm,
         tmdb_docs.TMDB_DOCS,
         headers={"Authorization": f"Bearer {tmdb_bearer_token}"},
+        limit_to_domains=["https://api.themoviedb.org/"],
     )
     return Tool(
         name="TMDB-API",
@@ -190,6 +204,7 @@ def _get_podcast_api(llm: BaseLanguageModel, **kwargs: Any) -> BaseTool:
         llm,
         podcast_docs.PODCAST_DOCS,
         headers={"X-ListenAPI-Key": listen_api_key},
+        limit_to_domains=["https://listen-api.listennotes.com/"],
     )
     return Tool(
         name="Podcast-API",
@@ -229,6 +244,11 @@ def _get_golden_query(**kwargs: Any) -> BaseTool:
 def _get_pubmed(**kwargs: Any) -> BaseTool:
     return PubmedQueryRun(api_wrapper=PubMedAPIWrapper(**kwargs))
 
+def _get_google_jobs(**kwargs: Any) -> BaseTool:
+    return GoogleJobsQueryRun(api_wrapper=GoogleJobsAPIWrapper(**kwargs))
+
+def _get_google_lens(**kwargs: Any) -> BaseTool:
+    return GoogleLensQueryRun(api_wrapper=GoogleLensAPIWrapper(**kwargs))
 
 def _get_google_serper(**kwargs: Any) -> BaseTool:
     return GoogleSerperRun(api_wrapper=GoogleSerperAPIWrapper(**kwargs))
@@ -237,10 +257,11 @@ def _get_google_serper(**kwargs: Any) -> BaseTool:
 def _get_google_scholar(**kwargs: Any) -> BaseTool:
     return GoogleScholarQueryRun(api_wrapper=GoogleScholarAPIWrapper(**kwargs))
 
-
 def _get_google_finance(**kwargs: Any) -> BaseTool:
     return GoogleFinanceQueryRun(api_wrapper=GoogleFinanceAPIWrapper(**kwargs))
 
+def _get_google_trends(**kwargs: Any) -> BaseTool:
+    return GoogleTrendsQueryRun(api_wrapper=GoogleTrendsAPIWrapper(**kwargs))
 
 def _get_google_serper_results_json(**kwargs: Any) -> BaseTool:
     return GoogleSerperResults(api_wrapper=GoogleSerperAPIWrapper(**kwargs))
@@ -365,6 +386,7 @@ _EXTRA_OPTIONAL_TOOLS: Dict[str, Tuple[Callable[[KwArg(Any)], BaseTool], List[st
     "bing-search": (_get_bing_search, ["bing_subscription_key", "bing_search_url"]),
     "metaphor-search": (_get_metaphor_search, ["metaphor_api_key"]),
     "ddg-search": (_get_ddg_search, []),
+    "google-lens": (_get_google_lens, ["serp_api_key"]),
     "google-serper": (_get_google_serper, ["serper_api_key", "aiosession"]),
     "google-scholar": (
         _get_google_scholar,
@@ -372,6 +394,14 @@ _EXTRA_OPTIONAL_TOOLS: Dict[str, Tuple[Callable[[KwArg(Any)], BaseTool], List[st
     ),
     "google-finance": (
         _get_google_finance,
+        ["serp_api_key"],
+    ),
+    "google-trends": (
+        _get_google_trends,
+        ["serp_api_key"],
+    ),
+    "google-jobs": (
+        _get_google_jobs,
         ["serp_api_key"],
     ),
     "google-serper-results-json": (
@@ -514,13 +544,14 @@ def load_tools(
     callbacks = _handle_callbacks(
         callback_manager=kwargs.get("callback_manager"), callbacks=callbacks
     )
+    # print(_BASE_TOOLS)
+    # print(1)
     for name in tool_names:
         if name == "requests":
             warnings.warn(
                 "tool name `requests` is deprecated - "
                 "please use `requests_all` or specify the requests method"
             )
-
         if name == "requests_all":
             # expand requests into various methods
             requests_method_tools = [
