@@ -84,6 +84,7 @@ def _import_google_trends() -> Any:
 
     return GoogleTrendsAPIWrapper
 
+
 def _import_google_search() -> Any:
     from langchain.utilities.google_search import GoogleSearchAPIWrapper
 
