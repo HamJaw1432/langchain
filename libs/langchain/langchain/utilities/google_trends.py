@@ -1,6 +1,7 @@
 """Util that calls Google Scholar Search."""
-from typing import Any, cast, Dict, Optional
-from langchain.pydantic_v1 import BaseModel, Extra, root_validator, SecretStr
+from typing import Any, Dict, Optional, cast
+
+from langchain.pydantic_v1 import BaseModel, Extra, SecretStr, root_validator
 from langchain.utils import convert_to_secret_str, get_from_dict_or_env
 
 
