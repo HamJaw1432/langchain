@@ -38,6 +38,7 @@ from langchain.tools.google_search.tool import GoogleSearchResults, GoogleSearch
 from langchain.tools.google_scholar.tool import GoogleScholarQueryRun
 from langchain.tools.google_trends.tool import GoogleTrendsQueryRun
 from langchain.tools.metaphor_search.tool import MetaphorSearchResults
+from langchain.tools.google_jobs.tool import GoogleJobsQueryRun
 from langchain.tools.google_serper.tool import GoogleSerperResults, GoogleSerperRun
 from langchain.tools.searchapi.tool import SearchAPIResults, SearchAPIRun
 from langchain.tools.graphql.tool import BaseGraphQLTool
@@ -65,6 +66,7 @@ from langchain.utilities.golden_query import GoldenQueryAPIWrapper
 from langchain.utilities.pubmed import PubMedAPIWrapper
 from langchain.utilities.bing_search import BingSearchAPIWrapper
 from langchain.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
+from langchain.utilities.google_jobs import GoogleJobsAPIWrapper
 from langchain.utilities.google_search import GoogleSearchAPIWrapper
 from langchain.utilities.google_serper import GoogleSerperAPIWrapper
 from langchain.utilities.google_scholar import GoogleScholarAPIWrapper
@@ -238,6 +240,9 @@ def _get_golden_query(**kwargs: Any) -> BaseTool:
 def _get_pubmed(**kwargs: Any) -> BaseTool:
     return PubmedQueryRun(api_wrapper=PubMedAPIWrapper(**kwargs))
 
+def _get_google_jobs(**kwargs: Any) -> BaseTool:
+    return GoogleJobsQueryRun(api_wrapper=GoogleJobsAPIWrapper(**kwargs))
+
 
 def _get_google_serper(**kwargs: Any) -> BaseTool:
     return GoogleSerperRun(api_wrapper=GoogleSerperAPIWrapper(**kwargs))
@@ -383,6 +388,10 @@ _EXTRA_OPTIONAL_TOOLS: Dict[str, Tuple[Callable[[KwArg(Any)], BaseTool], List[st
         _get_google_trends,
         ["serp_api_key"],
     ),
+    "google-jobs": (
+        _get_google_jobs,
+        ["serp_api_key"],
+    ),
     "google-serper-results-json": (
         _get_google_serper_results_json,
         ["serper_api_key", "aiosession"],
@@ -523,6 +532,8 @@ def load_tools(
     callbacks = _handle_callbacks(
         callback_manager=kwargs.get("callback_manager"), callbacks=callbacks
     )
+    # print(_BASE_TOOLS)
+    # print(1)
     for name in tool_names:
         if name == "requests":
             warnings.warn(
