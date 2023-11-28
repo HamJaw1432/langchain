@@ -95,8 +95,8 @@ class GoogleTrendsAPIWrapper(BaseModel):
         rising = []
         top = []
 
-        rising = [results.get("query") for results in total_results.get("rising", [])]
-        top = [results.get("query") for results in total_results.get("top", [])]
+        rising = [results.get("query") for results in total_results.get("rising", [])] # noqa: E501
+        top = [results.get("query") for results in total_results.get("top", [])] # noqa: E501
 
         doc = [
             f"Query: {query}\n"

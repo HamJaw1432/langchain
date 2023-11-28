@@ -65,11 +65,11 @@ class GoogleFinanceAPIWrapper(BaseModel):
         if not total_results:
             return "Nothing was found from the query: " + query
 
-        markets = total_results.get("markets", {})
+        markets = total_results.get("markets", {}) # noqa: E501
         res = "\nQuery: " + query + "\n"
 
         if "futures_chain" in total_results:
-            futures_chain = total_results.get("futures_chain", [])[0]
+            futures_chain = total_results.get("futures_chain", [])[0] # noqa: E501
             stock = futures_chain["stock"]
             price = futures_chain["price"]
             temp = futures_chain["price_movement"]
