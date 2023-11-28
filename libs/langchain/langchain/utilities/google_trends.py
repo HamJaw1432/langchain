@@ -90,13 +90,15 @@ class GoogleTrendsAPIWrapper(BaseModel):
             "data_type": "RELATED_QUERIES",
             "q": query,
         }
+
+        total_results2 = {}
         client = self.serp_search_engine(params)
-        total_results = client.get_dict()["related_queries"]
+        total_results2 = client.get_dict().get("related_queries", {})
         rising = []
         top = []
 
-        rising = [results.get("query") for results in total_results.get("rising", [])]
-        top = [results.get("query") for results in total_results.get("top", [])]
+        rising = [results.get("query") for results in total_results2.get("rising", [])]
+        top = [results.get("query") for results in total_results2.get("top", [])]
 
         doc = [
             f"Query: {query}\n"
